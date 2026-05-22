@@ -11,6 +11,7 @@ from app.models.model_metadata import ModelMetadata
 from app.routes import auth, admin, sales, forecast, analytics, reports
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from app.utils.apscheduler import scheduler
 
 Base.metadata.create_all(bind=engine)
 

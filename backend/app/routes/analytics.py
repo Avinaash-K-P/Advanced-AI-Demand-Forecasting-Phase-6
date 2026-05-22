@@ -12,6 +12,84 @@ from app.core.security import verify_token
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
+# Live Forecast
+@router.get("/live-forecast")
+def get_forecast(
+    db: Session = Depends(get_db),
+    user = Depends(verify_token)
+):
+
+    forecasts = db.query(
+        ForecastResult
+    ).order_by(
+
+        ForecastResult.forecast_date.desc()
+
+    ).limit(10).all()
+
+
+    data = []
+
+    for item in forecasts:
+
+        data.append({
+
+            "forecast_date": item.forecast_date,
+
+            "predicted_demand": item.predicted_demand
+        })
+
+
+    return success_response(
+
+        message="Live forecast data fetched successfully",
+
+        data=data
+    )
+
+# Sales Data
+@router.get("/recent-sales")
+def recent_sales(
+
+    db: Session = Depends(get_db),
+
+    user = Depends(verify_token)
+):
+
+    sales = db.query(Sales).order_by(
+
+        Sales.id.desc()
+
+    ).limit(10).all()
+
+
+    data = []
+
+    for item in sales:
+
+        data.append({
+
+            "product_name": item.product_name,
+
+            "category": item.category,
+
+            "region": item.region,
+
+            "quantity_sold": item.quantity_sold,
+
+            "revenue": item.revenue,
+
+            "date": item.sales_date
+        })
+
+
+    return success_response(
+
+        message="Recent sales fetched successfully",
+
+        data=data
+    )
+
 # Total Sales and Quantity
 @router.get("/total-sales")
 def get_total_sales(

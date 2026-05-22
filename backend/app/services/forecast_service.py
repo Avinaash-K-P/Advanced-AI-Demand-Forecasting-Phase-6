@@ -1,6 +1,84 @@
 import pandas as pd
 from prophet import Prophet
-from fastapi import HTTPException
+from app.db.session import SessionLocal
+from app.models.user import User
+from app.models.sales import Sales
+from app.models.forecast import ForecastResult
+from app.models.model_metadata import ModelMetadata
+import pandas as pd
+from datetime import datetime
+
+def auto_generate_forecast():
+
+    db = SessionLocal()
+
+    try:
+
+        print("Generating automatic forecast...")
+
+        # Fetch sales data
+        sales_data = db.query(Sales).all()
+        data = []
+
+        for row in sales_data:
+
+            data.append({
+
+                "ds": row.sales_date ,
+
+                "y": row.quantity_sold
+            })
+
+        # Convert to dataframe
+        df = pd.DataFrame(data)
+
+        # Train model
+        forecast = train_forecast_model(df, days = 0)
+
+        # Clear old forecast data
+        db.query(ForecastResult).delete()
+
+        # Save new forecast
+        for item in forecast.to_dict(orient="records"):
+
+            new_forecast = ForecastResult(
+
+                forecast_date=item["ds"],
+
+                predicted_demand=item["predicted_demand"]
+            )
+
+            db.add(new_forecast)
+
+        db.commit()
+
+        # Metadata
+         
+        current_sales_count = db.query(Sales).count()    
+        metadata = db.query(ModelMetadata).first()
+
+        if not metadata:
+            print("Initialising meta data....")
+            metadata = ModelMetadata(last_sales_count=0)
+            db.add(metadata)
+            db.commit()
+            db.refresh(metadata)
+
+        elif current_sales_count > metadata.last_sales_count:
+            print("New sales detected")
+            metadata.last_sales_count = current_sales_count
+            metadata.last_trained_at = datetime.utcnow()
+            db.commit()    
+
+    except Exception as e:
+
+        print("AUTO FORECAST ERROR:", e)
+
+    finally:
+
+        db.close()    
+
+    print("Forecast updated successfully!")
 
 def preprocess_sales_data(df: pd.DataFrame):
 
