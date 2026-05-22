@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.sales import Sales
 from app.models.forecast import ForecastResult
 from app.models.reports import Report
+from app.models.model_metadata import ModelMetadata
 from app.routes import auth, admin, sales, forecast, analytics, reports
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
