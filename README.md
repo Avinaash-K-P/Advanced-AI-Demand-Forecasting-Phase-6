@@ -12,6 +12,8 @@ Dataset: Retail Sales Data (source:Kaggle.com)
 
 IDE: Visual Studio Code
 
+AI models: Prophet, Linear Regression, Moving Average
+
 Backend packages:
 
 Fast-api,
