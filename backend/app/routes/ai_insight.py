@@ -3,10 +3,11 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
-from app.core.security import verify_role
+from app.core.security import verify_role, get_current_user
 from app.db.database import get_db
 from app.utils.response import success_response
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
+from app.models.user import User
 from app.models.sales import Sales
 
 router = APIRouter(prefix="/ai-insights", tags=["AI Insights"])
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/ai-insights", tags=["AI Insights"])
 @router.get("/recommendations")
 def generate_recommendations(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     forecast_rows = db.query(
     ForecastResult
@@ -55,7 +56,7 @@ def generate_recommendations(
 @router.get("/opportunities")
 def get_opportunties(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
     ):
     
     top_products = (
@@ -119,7 +120,7 @@ def get_opportunties(
 @router.get("/declining-products")
 def declining_products(
     db:Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
     ):
     products = (
 
@@ -187,7 +188,7 @@ def declining_products(
 )
 def high_growth_products(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):   
     products = (
 
@@ -256,7 +257,7 @@ def high_growth_products(
 @router.get("/summary")
 def forecast_summary(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     forecast_rows = db.query(

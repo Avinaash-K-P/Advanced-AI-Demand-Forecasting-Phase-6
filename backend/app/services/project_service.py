@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
-
+from app.models.user import User
 from app.models.forecast_project import ForecastProject
 from app.models.project_member import ProjectMember
 from app.models.project_dataset import ProjectDataset
@@ -73,9 +73,10 @@ def check_project_access(
 # Project CRUD
 # ──────────────────────────────────────────
 
-def create_project(db: Session, name: str, description: str, owner_id: int):
+def create_project(db: Session, org_id: int, name: str, description: str, owner_id: int):
 
     project = ForecastProject(
+        organization_id = org_id,
         name=name,
         description=description,
         owner_id=owner_id,

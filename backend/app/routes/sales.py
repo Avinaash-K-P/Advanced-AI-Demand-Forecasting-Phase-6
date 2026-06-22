@@ -17,18 +17,18 @@ from app.services.dataset_service import (
 )
 from app.models.user import User
 
-router = APIRouter(prefix="/sales", tags=["sales"])
+router = APIRouter(prefix="/sales", tags=["Sales"])
 
 # Upload Sales Dataset
 @router.post("/upload-dataset")
 async def upload_dataset(
     file: UploadFile = File(...), 
     db: Session = Depends(get_db), 
-    user = Depends(get_current_user),
+    user = Depends(verify_role("analyst")),
     current_user: User = Depends(get_current_user)
 ):
 
-    filename = file.filename.lower()
+    filename = file.filename.lower() #type: ignore
 
     try:
 
@@ -83,6 +83,7 @@ async def upload_dataset(
         for _, row in df.iterrows():
 
             sales = Sales(
+                organization_id = current_user.organization_id,
                 product_name=row["product_name"],
                 category=row["category"],
                 sales_date=row["sales_date"],
@@ -116,11 +117,16 @@ async def upload_dataset(
 
 
         print("Forecast will be generated in few seconds....")
-        auto_generate_forecast()  # Automatically generate the forecast results
+        
+        org_id  = current_user.organization_id
+        
+        auto_generate_forecast(org_id)  # Automatically generate the forecast results
 
         log_api_activity(
 
             db=db,
+
+            user_id= user["id"],
 
             username= user["username"],
 

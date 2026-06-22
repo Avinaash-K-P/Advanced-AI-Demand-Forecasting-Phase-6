@@ -101,16 +101,43 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    
-def verify_role(allowed_roles: list):
+def verify_role(role_type: str):
+
+    allowed_roles = []
+
+    match(role_type):
+
+        case "admin":
+            allowed_roles = ["super_admin"]
+
+        case "admins":
+            allowed_roles = ["super_admin", "organization_admin"]
+
+        case "manager":
+            allowed_roles = ["super_admin", "organization_admin", "manager"]
+
+        case "analyst":
+            allowed_roles = ["super_admin", "organization_admin", "analyst"]
+
+        case "team":
+            allowed_roles = ["super_admin", "organization_admin", "manager", "analyst"]
+
+        case "all":
+            allowed_roles = ["super_admin", "organization_admin", "manager", "analyst", "viewer"]
+
     def role_checker(user = Depends(verify_token)):
+        
         if user.get("role") not in allowed_roles:
 
             raise HTTPException(
                 status_code=403,
-                detail="Admin denied"
+                detail="Access denied!"
             )
 
         return user
     return role_checker
+
+
+                
+
 

@@ -1,10 +1,12 @@
-from sqlalchemy import Column, Index, Integer, String, Float, Date
+from sqlalchemy import Column, ForeignKey, Index, Integer, String, Float, Date
 from app.db.session import Base
 
 class Sales(Base):
     __tablename__ = "sales"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
 
     product_name = Column(String(255), index=True)
     

@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from app.db.session import Base
 from datetime import datetime
 
-
 class ForecastActivityTimeline(Base):
 
     __tablename__ = "forecast_activity_timeline"

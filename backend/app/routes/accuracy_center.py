@@ -8,11 +8,11 @@ from datetime import datetime
 from app.db.database import get_db
 from app.models.user import User
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.forecast_accuracy import ForecastAccuracy
 from app.models.forecast_history import ForecastHistory
 from app.models.model_metadata import ModelMetadata
-from app.core.security import get_current_user
+from app.core.security import get_current_user,verify_role
 from app.utils.response import success_response
 
 router = APIRouter(prefix="/accuracy", tags=["Forecast Accuracy Center"])
@@ -68,7 +68,7 @@ def performance_label(mae: float) -> str:
 @router.get("/model-performance")
 def model_performance_dashboard(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Full model performance summary dashboard.

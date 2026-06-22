@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import pandas as pd
 from app.db.database import get_db
+from app.models.user import User
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.forecast_history import ForecastHistory
 from app.models.forecast_scheduler import ForecastSchedule
 from app.models.forecast_accuracy import ForecastAccuracy
 from app.schemas.forecast import ForecastScheduleUpdate
-from app.core.security import verify_role
+from app.core.security import verify_role, get_current_user
 from app.utils.response import error_response, success_response
 from app.utils.logger import log_api_activity
 from app.services.preprocessing_service import preprocess_sales_data
@@ -26,35 +27,128 @@ from app.utils.apscheduler import (
     load_forecast_schedule
 )
 
-router = APIRouter(prefix="/forecast", tags=["forecast"])
+router = APIRouter(prefix="/forecast", tags=["Forecast"])
 
 # Preprocess Sales Data
 @router.get("/preprocess-data")
 def preprocess_data(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst"]))
+    user = Depends(verify_role("analyst")),
+    current_user: User = Depends(get_current_user)
 ):
 
-    sales_data = db.query(Sales)
+    sales_data = (
+     db.query(Sales).filter
+    (
+        Sales.organization_id == current_user.organization_id
+    ).all()
+    )
 
-    List = []
-
-    for row in sales_data:
-
-        List.append({
-            "sales_date": row.sales_date,
-            "quantity_sold": row.quantity_sold
-        })
-
-    df = pd.DataFrame(List)
-
-    processed_df = preprocess_sales_data(df)
+    processed_df = preprocess_sales_data(sales_data)
     new_data = processed_df.to_dict(orient="records")
     data = new_data
     return success_response(
         message = "Data preprocessed successfully!",
         data = data
     )
+
+#Generate Forecast
+@router.get("/generate-forecast")
+def generate_forecast(
+    db: Session = Depends(get_db),
+    user = Depends(verify_role("analyst")),
+    current_user: User = Depends(get_current_user)
+):   
+    sales_data = (
+    db.query(Sales).filter
+    (
+        Sales.organization_id == current_user.organization_id
+    ).all()
+    )
+
+    # Preprocess dataset
+    processed_df = preprocess_sales_data(sales_data)
+
+    # Train forecasting model
+    
+    _, prophet_df = train_prophet(processed_df)
+    lr_df = train_linear_regression(processed_df)
+    ma_df = compute_moving_average(processed_df)
+
+    esemble_df = build_ensemble_forecast(processed_df, prophet_df, lr_df, ma_df)
+
+    forecast_df = esemble_df
+
+     # Store forecast results
+    forecast_records = []
+
+    for _, row in forecast_df.iterrows():
+
+        # Adding to forecast results     
+        forecast = ForecastResult(
+
+            organization_id = current_user.organization_id,
+
+            forecast_date = row["ds"],
+
+            predicted_demand = float(row["predicted_demand"]),
+
+            prophet_prediction = float(row["prophet_prediction"]),
+
+            lr_prediction = float(row["lr_prediction"]),
+
+            ma_prediction = float(row["ma_prediction"]),
+            
+            sales_trend = float(row["sales_trend"]),
+
+            weekly_pattern = float(row["weekly_pattern"]),
+
+            yearly_pattern = float(row["yearly_pattern"])
+
+        )
+
+        forecast_records.append(forecast)
+
+        # Adding to forecast history 
+        history = ForecastHistory(
+
+        forecast_date=str(row["ds"]),
+
+        predicted_demand=float(row["predicted_demand"]),
+
+        model_type="Ensemble Prophet",
+
+        generated_by=user["username"]
+        )
+        
+    db.add_all(forecast_records)    
+    db.add(history)    
+    db.commit()
+
+    # Eavluating data
+    evaluate_forecast_accuracy(db)
+
+    log_api_activity(
+
+        db=db,
+
+        user_id = user["id"],
+
+        username= user["username"],
+
+        endpoint="/generate-forecast",
+
+        method="GET",
+
+        status="SUCCESS"
+    )
+
+    data = forecast_df.to_dict(orient="records")
+    return success_response(
+        message = "Forecast generated successfully!",
+        data = data
+    )
+
 
 #Forecast Scheduler
 @router.put("/forecast-schedule")
@@ -65,7 +159,7 @@ def update_forecast_schedule(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admin")
     )
 ):
 
@@ -136,7 +230,7 @@ def get_schedule(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admins")
     )
 
 ):
@@ -152,113 +246,13 @@ def get_schedule(
         data=schedule
     )
 
-#Generate Forecast
-@router.get("/generate-forecast")
-def generate_forecast(
-    db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst"]))
-):   
-    sales_data = db.query(Sales).all()
-
-    data = []
-
-    for row in sales_data:
-
-        data.append({
-            "sales_date": row.sales_date,
-            "quantity_sold": row.quantity_sold
-        })
-
-    df = pd.DataFrame(data)
-
-    # Preprocess dataset
-    processed_df = preprocess_sales_data(df)
-
-    # Train forecasting model
-    
-    prophet_df = train_prophet(processed_df)
-    lr_df = train_linear_regression(processed_df)
-    ma_df = compute_moving_average(processed_df)
-
-    esemble_df = build_ensemble_forecast(prophet_df, lr_df, ma_df)
-
-    forecast_df = esemble_df
-
-     # Store forecast results
-    forecast_records = []
-
-    for _, row in forecast_df.iterrows():
-
-        # Adding to forecast results     
-        forecast = ForecastResult(
-
-            forecast_date = row["ds"],
-
-            predicted_demand = float(row["predicted_demand"]),
-
-            prophet_prediction = float(row["prophet_prediction"]),
-
-            lr_prediction = float(row["linear_regression_prediction"]),
-
-            ma_prediction = float(row["moving_average_prediction"]),
-            
-            sales_trend = float(row["sales_trend"]),
-
-            weekly_pattern = float(row["weekly_pattern"]),
-
-            yearly_pattern = float(row["yearly_pattern"])
-
-        )
-
-        forecast_records.append(forecast)
-
-        # Adding to forecast history 
-        history = ForecastHistory(
-
-        forecast_date=str(row["ds"]),
-
-        predicted_demand=float(row["predicted_demand"]),
-
-        model_type="Ensemble Prophet",
-
-        generated_by=user["username"]
-        )
-        
-    db.add_all(forecast_records)    
-    db.add(history)    
-    db.commit()
-
-    # Eavluating data
-    evaluate_forecast_accuracy(db)
-
-    log_api_activity(
-
-        db=db,
-
-        user_id = user["id"],
-
-        username= user["username"],
-
-        endpoint="/generate-forecast",
-
-        method="GET",
-
-        status="SUCCESS"
-    )
-
-    data = forecast_df.to_dict(orient="records")
-    return success_response(
-        message = "Forecast generated successfully!",
-        data = data
-    )
-
 @router.get("/forecast-history")
 def forecast_history(
     start_date:str = None,
     end_date:str = None,
     model_type:str = None,
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst"]))
+    user = Depends(verify_role("analyst"))
 ):
     query = db.query(ForecastHistory)
 
@@ -303,7 +297,7 @@ def forecast_history(
 @cache(expire=60)
 def forecast_comparison(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     forecasts = db.query(ForecastResult).all()
@@ -347,11 +341,7 @@ def model_comparison(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):
     forecasts = (
@@ -420,11 +410,7 @@ def model_accuracy(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):
     accuracy_rows = (
@@ -487,11 +473,7 @@ def model_accuracy(
 @router.get("/forecast-confidence")
 def get_forecast_confidence(
     db: Session = Depends(get_db),
-    user = Depends(verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+    user = Depends(verify_role("all")
     )
 ):
     forecasts = (

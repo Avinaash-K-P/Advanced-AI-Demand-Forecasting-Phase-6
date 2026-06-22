@@ -6,14 +6,14 @@ from app.models.alert_settings import AlertSettings
 from app.utils.response import success_response
 from app.schemas.alert_settings import AlertSettingsUpdate
 
-router = APIRouter(prefix="/alerts", tags=["alerts"])
+router = APIRouter(prefix="/alerts", tags=["Alerts"])
 
 @router.get(
     "/alert-settings"
 )
 def get_alert_settings(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin"]))
+    user = Depends(verify_role("admins"))
 ):
     settings = db.query(AlertSettings).first()
     return success_response(
@@ -32,7 +32,7 @@ def update_alert_settings(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin"]))
+    user = Depends(verify_role("admins"))
 
 ):
     settings = db.query(AlertSettings).first()

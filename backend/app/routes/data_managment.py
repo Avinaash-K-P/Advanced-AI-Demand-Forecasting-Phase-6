@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from app.db.database import get_db
 from app.models.user import User
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.services.dataset_service import (
     get_all_versions,
@@ -26,7 +26,7 @@ router = APIRouter(prefix="/datasets", tags=["Data Management"])
 def list_versions(
     dataset_name: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     versions = get_all_versions(db, dataset_name)
     return success_response(
@@ -51,7 +51,7 @@ def list_versions(
 def get_version(
     version_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     v = get_version_by_id(db, version_id)
     return success_response(
@@ -83,7 +83,7 @@ def get_version(
 def list_upload_history(
     dataset_name: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     history = get_upload_history(db, dataset_name=dataset_name)
     return success_response(
@@ -106,7 +106,7 @@ def list_upload_history(
 @router.get("/my-uploads")
 def my_upload_history(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     history = get_upload_history(db, uploaded_by=current_user.id)
     return success_response(
@@ -131,7 +131,7 @@ def my_upload_history(
 def list_modifications(
     version_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     mods = get_modifications(db, version_id)
     return success_response(
@@ -155,7 +155,7 @@ def list_modifications(
 def archive_version(
     version_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("analyst"))
 ):
     version = archive_dataset_version(db, version_id, current_user.id)
     return success_response(
@@ -173,7 +173,7 @@ def archive_version(
 def restore_version(
     version_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("analyst"))
 ):
     version = restore_dataset_version(db, version_id, current_user.id)
     return success_response(
@@ -195,7 +195,7 @@ def compare_versions(
     version_id_a: int = Query(..., description="First version ID"),
     version_id_b: int = Query(..., description="Second version ID"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     result = compare_dataset_versions(db, version_id_a, version_id_b)
     return success_response(

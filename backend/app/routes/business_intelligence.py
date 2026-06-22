@@ -5,14 +5,14 @@ from app.core.security import verify_role
 from app.db.database import get_db
 from app.utils.response import success_response
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 
 router = APIRouter(prefix="/business", tags=["Business Intelligence"])
 
 @router.get("/revenue-forecast")
 def revenue_forecast(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     sales_rows = db.query(
     Sales
@@ -77,7 +77,7 @@ def revenue_forecast(
 @router.get("/profit-forecast")
 def profit_forecast(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     PROFIT_MARGIN = 0.30
 
@@ -146,7 +146,7 @@ def profit_forecast(
 @router.get("/cost-analysis")
 def cost_analysis(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     sales_rows = db.query(
     Sales
@@ -228,7 +228,7 @@ def cost_analysis(
 @router.get("/kpis")
 def business_kpis(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     
     total_sales = db.query(
@@ -280,7 +280,7 @@ def business_kpis(
 @router.get("/growth-impact")
 def growth_impact(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     
     current_revenue = db.query(
@@ -370,7 +370,7 @@ def growth_impact(
 @router.get("/executive-dashboard")
 def excutive_dashboard(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
                        
 ):  
     rf = revenue_forecast(db)

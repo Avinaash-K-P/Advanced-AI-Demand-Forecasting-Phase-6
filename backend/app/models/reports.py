@@ -1,13 +1,14 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from datetime import datetime
 from app.db.session import Base
-
 
 class Report(Base):
 
     __tablename__ = "reports"
 
     id = Column(Integer,primary_key=True,index=True)
+
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
 
     filename = Column(String(255))
 

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.forecast_revision import ForecastRevision
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.utils.timeline_logger import log_timeline_event, TimelineAction, TimelineCategory
 
 

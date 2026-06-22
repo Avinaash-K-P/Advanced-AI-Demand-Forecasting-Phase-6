@@ -8,7 +8,6 @@ from sqlalchemy import (
 from app.db.session import Base
 from datetime import datetime
 
-
 class ForecastHistory(Base):
 
     __tablename__ = "forecast_history"

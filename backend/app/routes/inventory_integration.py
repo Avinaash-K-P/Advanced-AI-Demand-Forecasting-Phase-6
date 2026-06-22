@@ -7,9 +7,8 @@ from app.schemas.Inventory_integration import InventoryIntegrationCreate
 from app.services.integration_service import call_external_api
 from app.core.security import verify_role
 from app.utils.response import success_response, error_response
-import requests 
 from datetime import datetime
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 
 router = APIRouter(
     prefix="/inventory",
@@ -24,7 +23,7 @@ def save_inventory_integration(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admins")
     )
 ):
 
@@ -61,7 +60,7 @@ def test_inventory_connection(
     integration: InventoryIntegrationCreate,
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admins")
     )
 ):
 
@@ -112,7 +111,7 @@ def sync_inventory(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admins")
     )
 ):
 
@@ -209,7 +208,7 @@ def get_integrations(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admins")
     )
 ):
 
@@ -232,7 +231,7 @@ def toggle_integration(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role(["super_admin"])
+        verify_role("admins")
     )
 ):
 
@@ -271,7 +270,7 @@ def inventory_webhook(
     payload: dict,
 
     db: Session = Depends(get_db),
-      user = Depends(verify_role(["super_admin"]))
+      user = Depends(verify_role("admins"))
 ):
 
     product = payload.get(
@@ -311,11 +310,7 @@ def global_stock_risk(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):
     inventory = db.query(Inventory).all()
@@ -393,11 +388,7 @@ def get_demand_spikes(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):
 
@@ -474,11 +465,7 @@ def demand_recommendations(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):
 
@@ -539,11 +526,7 @@ def demand_recommendations(
 def inventory_optimization(
   db: Session = Depends(get_db),
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):    
    

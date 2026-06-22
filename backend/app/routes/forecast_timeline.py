@@ -5,7 +5,7 @@ from typing import Optional
 from app.db.database import get_db
 from app.models.user import User
 from app.models.forecast_activity_timeline import ForecastActivityTimeline
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.utils.timeline_logger import log_timeline_event, TimelineAction, TimelineCategory
 from app.schemas.forecast_timeline import TimelineEventCreate
@@ -22,7 +22,8 @@ def get_timeline(
     action: Optional[str] = Query(None),
     limit: int = Query(50, le=200),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     query = db.query(ForecastActivityTimeline)
 
@@ -63,7 +64,8 @@ def get_timeline(
 def get_forecast_timeline(
     forecast_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     events = db.query(ForecastActivityTimeline).filter(
         ForecastActivityTimeline.forecast_id == forecast_id
@@ -88,7 +90,8 @@ def get_forecast_timeline(
 def get_project_timeline(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     events = db.query(ForecastActivityTimeline).filter(
         ForecastActivityTimeline.project_id == project_id
@@ -114,7 +117,8 @@ def get_project_timeline(
 def get_my_activity(
     limit: int = Query(30, le=100),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     events = db.query(ForecastActivityTimeline).filter(
         ForecastActivityTimeline.user_id == current_user.id
@@ -140,7 +144,8 @@ def get_my_activity(
 def manual_log(
     payload: TimelineEventCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     log_timeline_event(
         db=db,

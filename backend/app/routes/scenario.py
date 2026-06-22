@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.core.security import verify_role
+from app.core.security import verify_role, get_current_user
 from app.utils.response import success_response
 from app.db.database import get_db
 from app.models.user import User
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.forecast_scenario import Scenario
 from app.schemas.scenario import ScenarioCreate
 
@@ -22,10 +22,14 @@ def create_scenario(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst"]))
+    user = Depends(verify_role("analyst")),
+
+    current_user: User = Depends(get_current_user)
 
 ):
     new_scenario = Scenario(
+
+    organization_id = current_user.organization_id,    
 
     scenario_name=
     payload.scenario_name,
@@ -58,7 +62,7 @@ def create_scenario(
 @router.get("/get-scenario")
 def get_scenarios(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst"]))
+    user = Depends(verify_role("analyst"))
 ):
 
     scenarios = db.query(
@@ -79,7 +83,7 @@ def run_scenario_forecast(
 
     db:Session=Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst"]))
+    user = Depends(verify_role("analyst"))
 
 ):
     scenario = db.query(
@@ -142,7 +146,7 @@ def compare_scenarios(
 
     db:Session=Depends(get_db), 
 
-    user = Depends(verify_role(["super_admin","analyst"]))
+    user = Depends(verify_role("analyst"))
 
 ):
     scenario_a = db.query(Scenario).get(scenario1)

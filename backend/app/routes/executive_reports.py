@@ -18,7 +18,7 @@ from reportlab.lib.pagesizes import A4
 from app.db.database import get_db
 from app.models.user import User
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.forecast_accuracy import ForecastAccuracy
 from app.models.model_metadata import ModelMetadata
 from app.models.reports import Report
@@ -62,7 +62,7 @@ def compute_mae(actual, predicted):
 @router.get("/executive-summary")
 def executive_summary_report(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     """
     Generates a management-ready executive summary PDF covering:
@@ -183,7 +183,7 @@ def executive_summary_report(
 def monthly_forecast_report(
     year: Optional[int] = Query(None, description="Filter by year e.g. 2024"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     """
     Generates a monthly aggregated forecast + sales Excel report.
@@ -255,7 +255,7 @@ def monthly_forecast_report(
 @router.get("/revenue-outlook-report")
 def revenue_outlook_report(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     """
     Generates a forward-looking revenue and demand outlook PDF.
@@ -346,7 +346,7 @@ def revenue_outlook_report(
 @router.get("/management-summary-report")
 def management_summary_report(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     """
     Generates a multi-sheet management analytics Excel report covering:
@@ -453,12 +453,11 @@ VALID_REPORT_TYPES = [
 
 VALID_FREQUENCIES = ["daily", "weekly", "monthly"]
 
-
 @router.post("/schedules/create")
 def create_schedule(
     payload: ScheduleCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("manager"))
 ):
     if payload.report_type not in VALID_REPORT_TYPES:
         raise HTTPException(
@@ -509,7 +508,7 @@ def create_schedule(
 @router.get("/schedules")
 def list_schedules(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     schedules = db.query(ReportSchedule).order_by(
         ReportSchedule.created_at.desc()
@@ -536,7 +535,7 @@ def update_schedule(
     schedule_id: int,
     payload: ScheduleUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("manager"))
 ):
     schedule = db.query(ReportSchedule).filter(
         ReportSchedule.id == schedule_id
@@ -575,7 +574,7 @@ def update_schedule(
 def delete_schedule(
     schedule_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("admins"))
 ):
     schedule = db.query(ReportSchedule).filter(
         ReportSchedule.id == schedule_id

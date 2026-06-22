@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.forecast_accuracy import ForecastAccuracy
 
 

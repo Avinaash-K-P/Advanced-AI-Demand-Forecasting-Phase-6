@@ -2,9 +2,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.user import User
+from app.models.forecast_results import ForecastResult
 from app.models.model_metadata import ModelMetadata
-
 # ── Modular Services ──
 from app.services.preprocessing_service import preprocess_sales_data
 from app.services.training_service import (
@@ -22,7 +22,7 @@ from app.services.alert_service import (
 from app.services.revision_service import snapshot_forecast_revision
 
 # Auto Generate sales data and forecast reports
-def auto_generate_forecast():
+def auto_generate_forecast(org_id:int):
     """
     Orchestrates the full forecast pipeline:
     1. Preprocess sales data
@@ -42,7 +42,13 @@ def auto_generate_forecast():
         print("Starting forecast pipeline...")
  
         # 1. Load + preprocess
-        sales_data = db.query(Sales).all()
+        sales_data = (
+        db.query(Sales)
+            .filter(
+                Sales.organization_id == org_id
+            )
+        .all()
+)
  
         if not sales_data:
             print("No sales data found. Skipping forecast.")
@@ -62,14 +68,15 @@ def auto_generate_forecast():
  
         # 4. Snapshot before wipe (revision history)
         print("Saving revision snapshot...")
-        snapshot_forecast_revision(db=db, user_id=None, project_id=None)
+        snapshot_forecast_revision(db=db, user_id=None, project_id=None) # type: ignore
  
         # 5. Wipe + bulk insert new forecast
         db.query(ForecastResult).delete()
         db.commit()
- 
+
         new_records = [
             ForecastResult(
+                organization_id = org_id,
                 forecast_date=row["ds"],
                 predicted_demand=row["predicted_demand"],
                 prophet_prediction=row["prophet_prediction"],

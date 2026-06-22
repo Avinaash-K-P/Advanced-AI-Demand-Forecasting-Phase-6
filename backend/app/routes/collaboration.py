@@ -8,7 +8,7 @@ from app.models.project_collaboration import CollaborationInvitation
 from app.models.project_discussion import ProjectDiscussion
 from app.models.project_member import ProjectMember
 from app.models.project_activity import ProjectActivity
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.schemas.collaboration import (
     InvitationCreate,
@@ -50,7 +50,8 @@ def send_invitation(
     project_id: int,
     payload: InvitationCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("manager"))
 ):
     # Only owner can invite
     member = get_member(db, project_id, current_user.id)
@@ -113,7 +114,8 @@ def send_invitation(
 @router.get("/my-invitations")
 def get_my_invitations(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     invitations = db.query(CollaborationInvitation).filter(
         CollaborationInvitation.invited_user_id == current_user.id,
@@ -139,7 +141,8 @@ def respond_to_invitation(
     invitation_id: int,
     payload: InvitationRespond,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     if payload.status not in ["accepted", "declined"]:
         raise HTTPException(status_code=400, detail="Status must be 'accepted' or 'declined'")
@@ -201,7 +204,8 @@ def respond_to_invitation(
 def get_project_invitations(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("manager"))
 ):
     member = get_member(db, project_id, current_user.id)
     if not member:
@@ -235,7 +239,8 @@ def post_discussion(
     project_id: int,
     payload: DiscussionCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("analyst"))
 ):
     member = get_member(db, project_id, current_user.id)
     if not member:
@@ -278,7 +283,8 @@ def post_discussion(
 def get_discussions(
     project_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     member = get_member(db, project_id, current_user.id)
     if not member:
@@ -312,7 +318,8 @@ def update_discussion(
     discussion_id: int,
     payload: DiscussionUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("analyst"))
 ):
     discussion = db.query(ProjectDiscussion).filter(
         ProjectDiscussion.id == discussion_id
@@ -343,7 +350,8 @@ def update_discussion(
 def delete_discussion(
     discussion_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("manager"))
 ):
     discussion = db.query(ProjectDiscussion).filter(
         ProjectDiscussion.id == discussion_id

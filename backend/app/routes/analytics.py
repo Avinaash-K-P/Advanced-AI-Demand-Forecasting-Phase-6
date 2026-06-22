@@ -7,7 +7,7 @@ from app.utils.pagination import paginator
 from app.utils.logger import log_api_activity
 from app.models.user import User
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.forecast_history import ForecastHistory
 from app.models.alerts import Alert
 from app.models.api_logs import APILog
@@ -19,7 +19,7 @@ from sqlalchemy import or_
 from fastapi_cache.decorator import cache
 from app.models.inventory import Inventory
 
-router = APIRouter(prefix="/analytics", tags=["analytics"])
+router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
 # Global Search
 @router.get("/global-search")
@@ -29,7 +29,7 @@ def global_search(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     sales = db.query(Sales).filter(
@@ -127,7 +127,7 @@ def global_search(
 @router.get("/live-forecast")
 def get_forecast(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):   
     forecasts = db.query(
         ForecastResult
@@ -174,7 +174,7 @@ def system_performance(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     start_time = time.time()
 
@@ -217,7 +217,7 @@ def recent_sales(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     sales = db.query(Sales).order_by(
 
@@ -260,7 +260,7 @@ def seasonal_trends(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     forecasts = db.query(
@@ -303,7 +303,7 @@ def detect_anomalies(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     sales = db.query(Sales).all()
@@ -377,7 +377,7 @@ def region_forecast(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     sales = db.query(Sales).all()
@@ -424,7 +424,7 @@ def category_sales(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     sales = db.query(Sales).all()
@@ -470,7 +470,7 @@ def revenue_prediction(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     forecasts = db.query(
@@ -511,7 +511,7 @@ def inventory_risk(
 
     db: Session = Depends(get_db),
 
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     sales = db.query(Sales).all()
@@ -574,7 +574,7 @@ def get_total_sales(
     category: str = None,
     region: str = None,
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     query = db.query(Sales)
 
@@ -616,7 +616,7 @@ def get_monthly_sales(
     category: str = None,
     region: str = None,
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     query = db.query(Sales)
 
@@ -665,7 +665,7 @@ def get_forecast_results(
     start_date: str = None,
     end_date: str = None,
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     query = db.query(ForecastResult)
@@ -687,7 +687,7 @@ def get_forecast_results(
 @cache(expire=60)
 def get_forecast_accuracy(
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     sales_data = db.query(Sales).all()
@@ -780,7 +780,7 @@ def get_top_products(
     category: str = None,
     region: str = None,
     db: Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
     query = db.query(Sales)
 
@@ -819,7 +819,7 @@ def get_top_products(
 @router.get("/get-alert")
 def get_alerts(
     db:Session = Depends(get_db),
-    user = Depends(verify_role(["super_admin","analyst","viewer"]))
+    user = Depends(verify_role("all"))
 ):
 
     alerts = db.query(Alert).order_by(Alert.created_at.desc()).all()
@@ -836,11 +836,7 @@ def customer_behavior_analysis(
     db: Session = Depends(get_db),
 
     user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
+        verify_role("all")
     )
 ):
     total_customers = db.query(
@@ -963,13 +959,7 @@ def customer_behavior_analysis(
 )
 def get_business_recommendations(
     db: Session = Depends(get_db),
-        user = Depends(
-        verify_role([
-            "super_admin",
-            "analyst",
-            "viewer"
-        ])
-    )
+        user = Depends(verify_role("all"))
 ):
     forecasts = (
 

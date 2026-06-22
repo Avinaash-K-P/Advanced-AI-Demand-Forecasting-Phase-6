@@ -50,13 +50,3 @@ def send_email(
             msg.as_string()
 
         )
-
-    send_email(
-
-    "admin@company.com",
-
-    "Forecast Report Completed",
-
-    "Forecast report generated successfully."
-
-)

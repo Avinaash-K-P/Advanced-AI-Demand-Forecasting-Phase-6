@@ -10,6 +10,8 @@ class ForecastProject(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
+
     name = Column(String(255), nullable=False)
 
     description = Column(String(500), nullable=True)

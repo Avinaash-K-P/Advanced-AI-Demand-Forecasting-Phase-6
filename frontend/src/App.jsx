@@ -31,9 +31,38 @@ import ForecastComments from './pages/Forecast_comments';
 import ReportSharing from './pages/Report_Sharing';
 import DownloadReports from './pages/Download_Reports';
 import DashboardSettings from './pages/Dashboard_Settings';
+import Organization from "./pages/Organization";
+
+// Phase 6 Modules
+import Create_Organization from './pages/Create_Organization';
+import View_Organizations from './pages/View_Organizations';
+import Organization_Details from './pages/Organization_Details';
+import Organization_Settings from './pages/Organization_Settings';
+import Workflow from './pages/Workflow';
+import Create_Workflow from './pages/Create_Workflow';
+import View_Workflows from './pages/Workflow_List';
+import Execute_Workflow from './pages/Workflow_Execute';
+import Workflow_Executions from './pages/Workflow_Executions';
+import Create_Workflow_Step from './pages/Workflow_Steps';
+import Workflow_Logs from './pages/Workflow_Logs';
+import Strategic_Planning from './pages/Strategic_Planning';
+import Create_Annual_Plan from './pages/Create_Annual_Plan';
+import Create_Quarterly_Plan from './pages/Create_Quarterly_Plan';
+import Create_Business_Target from './pages/Create_Business_Target';
+import Annual_Dashboard from './pages/Annual_Dashboard';
+import Quarterly_Dashboard from './pages/Quarterly_Dashboard';
+import Forecast_Vs_Target from './pages/Forecast_Vs_Target';
+import Planning_Recommendations from './pages/Planning_Recommendations';
+import Governance from './pages/Governance';
+import Governance_Dashboard from './pages/Governance_Dashboard';
+import Forecast_Versions from './pages/Forecast_Versions';
+import Activity_Timeline from './pages/Activity_Timeline';
+import Audit_Logs from './pages/Audit_Logs';
+import Forecast_Lifecycle from './pages/Forecast_Lifecycle';
 
 
 function App() {
+
 
   return (
 
@@ -63,243 +92,269 @@ function App() {
 
         <Route
           path="/profile"
-          element={ <ProtectedRoute allowedRoles={["super_admin","analyst","viewer"]}>
-                   <Profile />
-            </ProtectedRoute>}
-          />
+          element={ <Profile />}
+        />  
 
         <Route
           path="/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst","viewer"]}>
-                   <Dashboard />
-            </ProtectedRoute>
-        }
+          element={<Dashboard />}
         />
 
         <Route
           path="/upload"
-          element={
-            <ProtectedRoute allowedRoles={["analyst"]}>
-                   <UploadDataset />
-            </ProtectedRoute>
-
-          }
+          element={<UploadDataset />}
         />
 
         <Route
           path="/forecast"
-          element={
-            <ProtectedRoute allowedRoles={["analyst"]}>
-                   <Forecast/>
-            </ProtectedRoute>
-          }
+          element={<Forecast/>}
         />
 
         <Route
           path="/download"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin", "analyst","viewer"]}>
-                   <DownloadReports />
-            </ProtectedRoute>  
-
-          }
+          element={<DownloadReports />}
         />
 
         <Route
           path="/download/forecast-report"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin", "analyst","viewer"]}>
-                   <Reports />
-            </ProtectedRoute>  
-
-          }
+          element={<Reports />}
         />
 
         <Route
         path="/download/analytic-summary"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst","viewer"]}>
-                   <DownloadSummary />
-            </ProtectedRoute>
-        }
+        element={ <DownloadSummary />}
         />
 
         <Route
           path="/executive-dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ExecutiveDashboard />
-            </ProtectedRoute>
-          }
+          element={ <ExecutiveDashboard />}
         />
 
           <Route
           path="/admin/management"
-          element={ 
-          <ProtectedRoute allowedRoles = {["super_admin"]}>
-             <Management />
-          </ProtectedRoute>  
-          }
+          element={<Management />}
         />
 
         <Route
           path="/admin/management/users"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin"]}>
-                   <AdminUsers />
-            </ProtectedRoute>
-          }
+          element={ <AdminUsers />}
         />
 
 
         <Route
           path="/admin/management/sales"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin"]}>
-                   <AdminSales />
-            </ProtectedRoute>
-          }
+          element={<AdminSales />}
         />
 
           <Route
           path="/admin/management/forecasts"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin"]}>
-                   <AdminForecast />
-            </ProtectedRoute>
-          }
+          element={<AdminForecast />}
         />
           <Route
           path="/admin/management/reports"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin"]}>
-                   <AdminReports />
-            </ProtectedRoute>
-          }
+          element={<AdminReports />}
         />
 
         <Route
           path="/admin/management/integration"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin"]}>
-                   <IntegrationManagement />
-            </ProtectedRoute>
-          }
+          element={<IntegrationManagement />}
         />
 
         <Route
           path="/admin/activity-logs"
-          element={
-            <ProtectedRoute allowedRoles={["super_admin"]}>
-                   <ActivityLogs />
-            </ProtectedRoute>
-          }
+          element={ <ActivityLogs />}
         />    
         
         <Route
           path = "/forecast-scenario"
-          element = {
-          <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <Senario />
-            </ProtectedRoute>  } 
+          element = { <Senario />} 
         />
 
         <Route
           path = "/workspace"
-          element = {
-          <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <Workspace />
-            </ProtectedRoute>  } 
+          element = { <Workspace /> } 
         />  
 
         <Route
           path = "/workspace/projects"
-          element = {
-          <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <Projects />
-            </ProtectedRoute>  } 
+          element = { <Projects />} 
         />  
 
           <Route
           path = "/workspace/project-details"
-          element = {
-          <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ProjectDetail />
-            </ProtectedRoute>  } 
+          element = {<ProjectDetail />} 
         />  
 
           <Route
           path = "/workspace/project-settings"
-          element = {
-          <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ProjectSettings />
-            </ProtectedRoute>  } 
+          element = {<ProjectSettings />} 
         />    
 
           <Route
           path = "/workspace/project-discussions"
-          element = {
-          <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ProjectDiscussion />
-            </ProtectedRoute>  } 
+          element = {<ProjectDiscussion />} 
         />    
 
           <Route
         path="/collaboration"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <Collaboration />
-            </ProtectedRoute>
-        }
+        element={ <Collaboration />}
         />
 
           <Route
         path="/collaboration/invitation"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <CollaborationInvitations />
-            </ProtectedRoute>
-        }
+        element={<CollaborationInvitations />}
         />
 
           <Route
         path="/collaboration/project-discussion"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ProjectDiscussion />
-            </ProtectedRoute>
-        }
+        element={<ProjectDiscussion />}
       />
 
           <Route
         path="/collaboration/forecast-comments"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ForecastComments />
-            </ProtectedRoute>
-        }
+        element={<ForecastComments />}
       />  
 
         <Route
         path="/collaboration/report-sharing"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <ReportSharing />
-            </ProtectedRoute>
-        }
+        element={<ReportSharing />}
       />
 
         <Route
         path="/dashboard/settings"
-        element={
-            <ProtectedRoute allowedRoles={["super_admin","analyst"]}>
-                   <DashboardSettings />
-            </ProtectedRoute>
-        }
+        element={<DashboardSettings/>}
       />
 
-          <Route 
+        <Route
+          path="/organization"
+          element={<Organization />}
+        />
+
+        <Route
+          path="/organization/create"
+          element={<Create_Organization />}
+        />
+
+        <Route
+          path="/organization/view"
+          element={<View_Organizations />}
+        />
+
+        <Route
+          path="/organization/details/:id"
+          element={<Organization_Details />}
+        />
+
+        <Route
+          path="/organization/settings"
+          element={<Organization_Settings />}
+        />
+
+        <Route
+          path="/workflow"
+          element={<Workflow />}
+        />
+
+        <Route
+          path="/workflow/create"
+          element={<Create_Workflow/>}
+        />
+
+        <Route
+          path="/workflow/view"
+          element={<View_Workflows />}
+        />
+
+        <Route
+          path="/workflow/execute"
+          element={<Execute_Workflow />}
+        />
+
+        <Route
+          path="/workflow/executions"
+          element={<Workflow_Executions />}
+        />
+
+        <Route
+          path="/workflow/steps"
+          element={<Create_Workflow_Step />}
+        />
+
+        <Route
+          path="/workflow/logs"
+          element={<Workflow_Logs />}
+        />
+
+        <Route
+          path="/planning"
+          element={<Strategic_Planning />}
+        />
+
+        <Route
+          path="/planning/annual"
+          element={<Create_Annual_Plan />}
+        />
+
+        <Route
+          path="/planning/quarterly"
+          element={<Create_Quarterly_Plan />}
+        />
+
+        <Route
+          path="/planning/targets"
+          element={<Create_Business_Target />}
+        />
+        <Route
+          path="/planning/annual-dashboard"
+         element={<Annual_Dashboard />}
+        />
+
+        <Route
+          path="/planning/quarterly-dashboard"
+          element={<Quarterly_Dashboard />}
+        />
+
+        <Route
+          path="/planning/forecast-vs-target"
+          element={<Forecast_Vs_Target />}
+        />
+
+        <Route
+          path="/planning/recommendations"
+          element={<Planning_Recommendations />}
+        />
+
+        <Route
+          path="/governance"
+          element={<Governance />}
+        />
+
+        <Route
+          path="/governance/versions"
+          element={<Forecast_Versions />}
+        />
+
+        <Route
+          path="/governance/activity-timeline"
+          element={<Activity_Timeline />}
+        />
+
+        <Route
+          path="/governance/audit-logs"
+          element={<Audit_Logs />}
+        />
+
+        <Route
+          path="/governance/lifecycle"
+          element={<Forecast_Lifecycle />}
+        />
+
+        <Route
+          path="/governance/dashboard"
+          element={<Governance_Dashboard />}
+        />
+
+        <Route 
         path="/unauthorized"
         element={<Unauthorized/>}
         />

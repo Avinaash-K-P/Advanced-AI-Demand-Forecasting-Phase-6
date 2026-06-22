@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.db.database import get_db
 from app.models.dashboard_preference import DashboardPreference
 from app.schemas.dashboard_preference import DashboardPreferenceUpdate
@@ -14,7 +14,9 @@ def get_preferences(
 
     db: Session = Depends(get_db),
 
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user),
+
+    user = Depends(verify_role("all"))
 
 ):
 
@@ -52,7 +54,9 @@ def save_preferences(
 
     db: Session = Depends(get_db),
 
-    current_user = Depends(get_current_user)
+    current_user = Depends(get_current_user),
+
+    user = Depends(verify_role("all"))
 
 ):
 

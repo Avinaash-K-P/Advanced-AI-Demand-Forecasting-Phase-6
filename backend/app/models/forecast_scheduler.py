@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 
 from app.db.session import Base
 
@@ -9,6 +9,8 @@ class ForecastSchedule(Base):
     __tablename__ = "forecast_schedules"
 
     id = Column(Integer, primary_key=True)
+
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
 
     interval_type = Column(String(10))
 

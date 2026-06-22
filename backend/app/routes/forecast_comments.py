@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
 from app.models.forecast_comments import ForecastComment
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.schemas.forecast_comments import CommentCreate, CommentUpdate
 
@@ -17,7 +17,7 @@ def add_comment(
     forecast_id: int,
     payload: CommentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("analyst"))
 ):
     comment = ForecastComment(
         forecast_id=forecast_id,
@@ -45,7 +45,7 @@ def add_comment(
 def get_comments(
     forecast_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("all"))
 ):
     comments = db.query(ForecastComment).filter(
         ForecastComment.forecast_id == forecast_id
@@ -70,7 +70,7 @@ def update_comment(
     comment_id: int,
     payload: CommentUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("team"))
 ):
     comment = db.query(ForecastComment).filter(
         ForecastComment.id == comment_id
@@ -101,7 +101,7 @@ def update_comment(
 def delete_comment(
     comment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user = Depends(verify_role("admins"))
 ):
     comment = db.query(ForecastComment).filter(
         ForecastComment.id == comment_id

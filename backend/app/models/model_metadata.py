@@ -7,7 +7,6 @@ class ModelMetadata(Base):
 
     __tablename__ = "model_metadata"
 
-
     id = Column(Integer, primary_key=True, index=True)
 
     last_trained_at = Column(DateTime, default=datetime.utcnow)

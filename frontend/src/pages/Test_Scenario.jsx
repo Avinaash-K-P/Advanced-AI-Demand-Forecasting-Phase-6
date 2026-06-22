@@ -516,4 +516,4 @@ text-green-600
 
 }
 
-export default Senario
+export default Senario;

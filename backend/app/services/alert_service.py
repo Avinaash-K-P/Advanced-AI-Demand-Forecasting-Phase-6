@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.alerts import Alert
 from app.models.alert_settings import AlertSettings
 

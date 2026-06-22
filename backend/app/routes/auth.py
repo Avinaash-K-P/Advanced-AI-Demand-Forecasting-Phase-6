@@ -15,7 +15,7 @@ from app.core.security import(
 )  
 import secrets
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 # User Register
 @router.post("/register")
@@ -195,8 +195,9 @@ def update_profile(
 ):
     current_user.username = payload.username
     current_user.email = payload.email
-    db.commit()
 
+    
+    db.commit()
     db.refresh(current_user)
 
     return current_user

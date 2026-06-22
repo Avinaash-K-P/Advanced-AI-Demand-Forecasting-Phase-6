@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.models.user import User
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.schemas.forecast_project import (
     ProjectCreate,
@@ -27,10 +27,12 @@ router = APIRouter(prefix="/projects", tags=["Forecast Projects"])
 def create_project(
     payload: ProjectCreate,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("analyst")),
     current_user: User = Depends(get_current_user)
 ):
     project = project_service.create_project(
         db=db,
+        org_id = current_user.organization_id,
         name=payload.name,
         description=payload.description,
         owner_id=current_user.id
@@ -44,6 +46,7 @@ def create_project(
 @router.get("/")
 def list_projects(
     db: Session = Depends(get_db),
+    user = Depends(verify_role("team")),
     current_user: User = Depends(get_current_user)
 ):
     projects = project_service.get_all_projects(
@@ -67,6 +70,7 @@ def list_projects(
 def get_project(
     project_id: int,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("team")),
     current_user: User = Depends(get_current_user)
 ):
     project = project_service.get_project_by_id(
@@ -93,6 +97,7 @@ def update_project(
     project_id: int,
     payload: ProjectUpdate,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("manager")),
     current_user: User = Depends(get_current_user)
 ):
     project = project_service.update_project(
@@ -113,6 +118,7 @@ def update_project(
 def delete_project(
     project_id: int,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("admins")),
     current_user: User = Depends(get_current_user)
 ):
     project_service.delete_project(
@@ -132,6 +138,7 @@ def add_member(
     project_id: int,
     payload: MemberAdd,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("admins")),
     current_user: User = Depends(get_current_user)
 ):
     member = project_service.add_member(
@@ -151,6 +158,7 @@ def add_member(
 def get_members(
     project_id: int,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("team")),
     current_user: User = Depends(get_current_user)
 ):
     members = project_service.get_members(
@@ -175,6 +183,7 @@ def update_member_role(
     target_user_id: int,
     payload: MemberRoleUpdate,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("manager")),
     current_user: User = Depends(get_current_user)
 ):
     member = project_service.update_member_role(
@@ -195,6 +204,7 @@ def remove_member(
     project_id: int,
     target_user_id: int,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("admin")),
     current_user: User = Depends(get_current_user)
 ):
     project_service.remove_member(
@@ -215,6 +225,7 @@ def link_dataset(
     project_id: int,
     payload: DatasetLink,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("analyst")),
     current_user: User = Depends(get_current_user)
 ):
     dataset = project_service.link_dataset(
@@ -236,6 +247,7 @@ def link_forecast(
     project_id: int,
     payload: ForecastLink,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("analyst")),
     current_user: User = Depends(get_current_user)
 ):
     forecast = project_service.link_forecast(
@@ -256,6 +268,7 @@ def link_report(
     project_id: int,
     payload: ReportLink,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("analyst")),
     current_user: User = Depends(get_current_user)
 ):
     report = project_service.link_report(
@@ -279,6 +292,7 @@ def link_report(
 def get_activity(
     project_id: int,
     db: Session = Depends(get_db),
+    user = Depends(verify_role("team")),
     current_user: User = Depends(get_current_user)
 ):
     activities = project_service.get_project_activity(

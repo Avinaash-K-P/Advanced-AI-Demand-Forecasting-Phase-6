@@ -6,7 +6,7 @@ from app.db.database import get_db
 from app.models.user import User
 from app.models.report_sharing import ReportShare
 from app.models.reports import Report
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.schemas.report_sharing import ReportShareCreate
 
@@ -19,7 +19,8 @@ def share_report(
     report_id: int,
     payload: ReportShareCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("team"))
 ):
     # Check report exists
     report = db.query(Report).filter(Report.id == report_id).first()
@@ -70,7 +71,8 @@ def share_report(
 def get_report_shares(
     report_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     shares = db.query(ReportShare).filter(
         ReportShare.report_id == report_id,
@@ -93,7 +95,8 @@ def get_report_shares(
 @router.get("/shared-with-me")
 def get_shared_with_me(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     now = datetime.utcnow()
 
@@ -126,7 +129,8 @@ def get_shared_with_me(
 def revoke_share(
     share_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("team"))
 ):
     share = db.query(ReportShare).filter(
         ReportShare.id == share_id

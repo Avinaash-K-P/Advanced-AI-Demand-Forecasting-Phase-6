@@ -4,7 +4,7 @@ from typing import Optional
 from app.db.database import get_db
 from app.models.user import User
 from app.models.forecast_revision import ForecastRevision
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_role
 from app.utils.response import success_response
 from app.services.revision_service import (
     snapshot_forecast_revision,
@@ -21,7 +21,8 @@ router = APIRouter(prefix="/revisions", tags=["Forecast Revisions"])
 def get_revisions(
     forecast_date: str = Query(..., description="Format: YYYY-MM-DD"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     revisions = get_revisions_by_date(db, forecast_date)
 
@@ -52,7 +53,8 @@ def get_revisions(
 def get_latest(
     forecast_date: str = Query(..., description="Format: YYYY-MM-DD"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     revision = get_latest_revision(db, forecast_date)
 
@@ -87,7 +89,9 @@ def compare(
     revision_a: int = Query(..., description="First revision number"),
     revision_b: int = Query(..., description="Second revision number"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
+    
 ):
     if revision_a == revision_b:
         raise HTTPException(
@@ -114,7 +118,8 @@ def compare(
 def get_revision_detail(
     revision_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     revision = db.query(ForecastRevision).filter(
         ForecastRevision.id == revision_id
@@ -151,7 +156,8 @@ def get_revision_detail(
 def manual_snapshot(
     project_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user = Depends(verify_role("all"))
 ):
     snapshot_forecast_revision(
         db=db,

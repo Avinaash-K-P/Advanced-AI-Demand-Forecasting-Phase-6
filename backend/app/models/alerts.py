@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from app.db.session import Base
 from datetime import datetime
 
@@ -7,6 +7,8 @@ class Alert(Base):
     __tablename__ = "alerts"
 
     id = Column(Integer, primary_key=True)
+
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
 
     alert_type = Column(String(100))
 

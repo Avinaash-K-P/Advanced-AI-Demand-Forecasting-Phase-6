@@ -31,13 +31,24 @@ from app.routes import(
     data_managment,
     accuracy_center, 
     executive_reports,
-    dashboard_preference
+    dashboard_preference,
+    organization,
+    organization_settings,
+    approval_workflow,
+    workflow,
+    strategic_planning,
+    governance,
+    kpi,
+    data_quality,
+    executive_commands,
+    notification
     )
 
 # Models Imports
+
 from app.models.user import User
 from app.models.sales import Sales
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.reports import Report
 from app.models.model_metadata import ModelMetadata
 from app.models.api_logs import APILog
@@ -67,63 +78,57 @@ from app.models.dataset_modification import DatasetModification
 from app.models.report_schedule import ReportSchedule
 from app.models.dashboard_preference import DashboardPreference
 
+#--------------------PHASE 6 MODELS------------------------------------
+
+from app.models.organization import Organization
+from app.models.organization_settings import OrganizationSettings
+from app.models.forecast_approval import ForecastApproval
+from app.models.forecast_approval_history import ForecastApprovalHistory
+from app.models.workflow import Workflow
+from app.models.workflow_steps import Workflowsteps
+from app.models.workflow_executions import WorkflowExecution
+from app.models.workflow_logs import WorkflowLogs
+from app.models.annual_plans import AnnualPlans
+from app.models.quarterly_plans import QuarterlyPlans
+from app.models.business_targets import BusinessTargets
+from app.models.forecast_lifecycle import ForecastLifecycle
+from app.models.governance_audit_logs import GovernanceAuditLogs
+from app.models.kpis import Kpis
+from app.models.kpi_values import KPIValues
+from app.models.kpi_alerts import KPIAlerts
+from app.models.data_quality_reports import DataQualityReports
+from app.models.dataset_validation_logs import DatasetValidationLogs
+from app.models.executive_dashboard import ExecutiveDashboard
+from app.models.executive_alerts import ExecutiveAlerts
+from app.models.notification import Notifications
+from app.models.notification_preference import NotificationPreferences
+from app.models.notification_history import NotificationHistory
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="AI Demand Forecasting Phase 5",
+    title="AI Demand Forecasting Platform",
     description="""
-    Enterprise AI-Powered Demand Forecasting,
-    Business Intelligence and Decision Support Platform.
+Enterprise-grade AI Demand Forecasting and Planning Platform.
 
-    Features Included:
-
-    Forecast Workspace Management
-    - Forecast Project Creation
-    - Forecast Workspaces
-    - Project Ownership
-    - Project Permissions
-    - Project Activity Tracking
-
-    Advanced Scenario Planning
-    - What-If Analysis
-    - Multiple Forecast Scenarios
-    - Scenario Comparison
-    - Scenario Reusability
-    - Demand Factor Simulation
-
-    Business Intelligence
-    - Executive Dashboard
-    - Revenue Forecasting
-    - Profit Forecasting
-    - Cost Analysis
-    - Business KPI Monitoring
-    - Growth Impact Analysis
-
-    AI Insight Engine
-    - Automated Business Recommendations
-    - Demand Opportunity Detection
-    - Declining Product Identification
-    - High Growth Product Detection
-    - AI Generated Forecast Summaries
-
-    Collaboration & Productivity
-    - Team Collaboration Workspace
-    - Forecast Project Sharing
-    - Comment & Discussion Support
-
-    Dashboard Experience
-    - Executive Navigation Dashboard
-    - Improved User Experience
-    - Advanced Analytics Views
-
-    Platform Optimization
-    - Optimized API Performance
-    - Enterprise Logging
-    - Scalable Architecture
-    """,
-    version="5.0.0"
+Features:
+- Multi-Organization Management
+- New Role-Based Access Control
+- Sales Data Management
+- AI Forecast Generation
+- Forecast Approval Workflows
+- Workflow Automation
+- Strategic Planning Dashboards
+- Forecast Governance Center
+- KPI Management
+- Data Quality Monitoring
+- Executive Command Center
+- Notification Center
+- Organization-Based Data Isolation
+- Audit Logging and Compliance Tracking
+""",
+    version="6.0.0"
 )
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -135,6 +140,19 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(admin.router)
+
+# ---- Phase 6 routes--------------------------
+app.include_router(organization.router)
+app.include_router(organization_settings.router)
+app.include_router(approval_workflow.router)
+app.include_router(workflow.router)
+app.include_router(strategic_planning.router)
+app.include_router(governance.router)
+app.include_router(kpi.router)
+app.include_router(data_quality.router)
+app.include_router(executive_commands.router)
+app.include_router(notification.router)
+#----------------------------------------------
 
 app.include_router(sales.router)
 app.include_router(forecast.router)

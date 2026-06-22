@@ -9,11 +9,9 @@ class DashboardPreference(Base):
 
     id = Column(Integer,primary_key=True)
 
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id"),
-        unique=True
-    )
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
+
+    user_id = Column(Integer,ForeignKey("users.id"),unique=True)
 
     show_kpi = Column(Boolean,default=True)
 

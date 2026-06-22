@@ -3,6 +3,8 @@ import { useState,useEffect } from "react";
 import NotificationDropdown from "./NotificationDropDown";
 import React from "react";
 import {
+  FaUserShield,
+  FaUser,
   FaTachometerAlt,
   FaChartLine,
   FaUsersCog,
@@ -15,7 +17,12 @@ import {
   FaDownload,
   FaUserCircle,
   FaCog,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaBuilding,
+  FaProjectDiagram,
+  FaRobot,
+  FaEdit,
+  FaShieldAlt
 } from "react-icons/fa";
 import { getThemeStyles } from "./ThemeStyles";
 import {toast} from "react-toastify";
@@ -99,7 +106,7 @@ function Layout({ children }) {
   return (
 
    <div
-  className={`
+    className={`
     min-h-screen
     flex
     transition-all
@@ -107,7 +114,7 @@ function Layout({ children }) {
     
      ${styles.layout}
     `}
->
+    >
 
       {/* Sidebar */}
    
@@ -129,302 +136,384 @@ function Layout({ children }) {
     shadow-2xl
     transition-all
     duration-300
-    text-center
+    text-left
 
    `}
     >
 
+      {(role === "super_admin" || role === "organization_admin") && (
 
-        { role =="super_admin" && (
-        
-        <h1 className="text-2xl font-bold mb-10">
+        <div className="flex items-center gap-3 mb-10">
+          <FaUserShield className="text-blue-400 text-2xl" />
+          <p className="text-xl font-bold">
             Admin Panel
-        </h1>
+          </p>
+        </div>
 
-         )
-        }
+      )}
 
+      {(role ==="manager" || role === "analyst" || role === "viewer") && (
+      
+        <div className="flex items-center gap-3 mb-10">
+          <FaUser className="text-blue-400 text-2xl" />
+          <p className="text-xl font-bold">
+            User Panel
+          </p>
+        </div>
 
-      {(role === "analyst" || role === "viewer") && (
+      )}
 
-    <h1 className="text-2xl font-bold mb-10">
-        AI Forecast
-    </h1>
+  <nav className="space-y-4">
 
-)}
+    {/*ANALYTICS*/}
 
-        <nav className="space-y-4">
+    <div className="mt-6 mb-2 px-4">
+          <p className="
+            text-base
+            font-bold
+            tracking-wide
+            text-gray-300
+          ">
+            ANALYTICS
+          </p>
+        <div
+        className="
+          border-b
+          border-gray-600
+         "/>
+        </div>
 
         <Link
-            to="/dashboard"
-            className="
-             flex 
-             items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
+          to="/dashboard"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
           >
-            <FaTachometerAlt className="shrink-0 text-lg"/>
-            <span className="truncate">Dashboard</span> 
+            <FaTachometerAlt className="text-sm "/>
+            <span className="text-sm text-sm truncate">Dashboard</span> 
         </Link>
 
+        { /*ANALYST AND VIEWER RESTRICTED*/
+          (role != "analyst" && role != "viewer") && (
+            <>
+  
+        <Link
+          to="/executive-dashboard"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaChartLine className="text-sm" />
+          <span className="text-sm text-sm truncate">Executive</span>
+        </Link>  
 
-
-
-        {/*For Admin Access*/
-           role === "super_admin" &&
-           ( <>
-
-                   <Link
-            to="/executive-dashboard"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaChartLine className="shrink-0 text-lg"/>
-            <span className="truncate">Executive</span> 
-          </Link>
-
-            <Link
-            to="/admin/management"
-            className="
-             flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaUsersCog />
-           <span className="truncate">Manage</span> 
-          </Link>
-
-            <Link
-            to="/admin/activity-logs"
-            className="
-             flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          > 
-            <FaClipboardList className="shrink-0 text-lg"/>
-            <span className="truncate">Logs</span> 
-          </Link>
-
-          <Link
-            to="/forecast-scenario"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaFlask className="shrink-0 text-lg"/>
-            <span className="truncate">Scenario</span> 
-          </Link>
-
-
-          <Link
-            to="/workspace"
-            className="
-             flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaFolderOpen className="shrink-0 text-lg"/>
-           <span className="truncate">Workspace</span> 
-          </Link>
-
-          <Link
-            to="/collaboration"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaUserFriends className="shrink-0 text-lg"/>
-            <span className="truncate">Collabs</span> 
-          </Link>
-
-
-          </>)
+            </>
+          )
         }
 
-        {/*For Analyst Access*/
+        { /*VIEWER RESTRICTED*/
+          (role != "viewer") && (
+            <>
+        <Link
+          to="/forecast-scenario"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaFlask className="text-sm" />
+          <span className="text-sm text-sm truncate">Scenario</span>
+        </Link>
+         </>)
+         }     
 
-        role ==="analyst" &&
-        ( <>
+        {/* AI FORECASTING */}
 
-          <Link
-            to="/executive-dashboard"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaChartLine className="shrink-0 text-lg"/>
-            <span className="truncate">Executive</span> 
-          </Link>
+      { /*MANAGER AND VIEWER RESTRICTED*/
+          (role != "viewer" && role!= "manager") && (
+            <>   
 
-          <Link
-            to="/upload"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaUpload className="shrink-0 text-lg"/>
-            <span className="truncate">Upload</span> 
-          </Link>
-
-          <Link
-            to="/forecast"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaBrain className="shrink-0 text-lg"/>
-            <span className="truncate">Forecast</span> 
-          </Link>
-
-                    <Link
-            to="/forecast-scenario"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaFlask className="shrink-0 text-lg"/>
-            <span className="truncate">Scenario</span> 
-          </Link>
-
-
-          <Link
-            to="/workspace"
-            className="
-             flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaFolderOpen className="shrink-0 text-lg"/>
-           <span className="truncate">Workspace</span> 
-          </Link>
-
-          <Link
-            to="/collaboration"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaUserFriends className="shrink-0 text-lg"/>
-            <span className="truncate">Collabs</span> 
-          </Link>
-
-          </>)
-        }
-
-          <Link
-            to="/download"
-            className="
-            flex items-center gap-3 p-3
-             block px-4
-             py-3
-             rounded-xl
-             hover:bg-white/10
-             hover:text-green-200
-             transition
-            "
-          >
-            <FaDownload className="shrink-0 text-lg"/>
-            <span className="truncate">Downloads</span> 
-          </Link>
-
-                  <button
-
-    onClick={toggleTheme}
-
+        <div className="mt-6 mb-2 px-4">
+          <p className="
+            text-base
+            font-bold
+            tracking-wide
+            text-gray-300
+          ">
+            FORECASTING
+          </p>
+            <div
     className="
-        w-full
-        mt-6
-        px-4
-        py-3
-        rounded-xl
-        bg-gray-200
-        dark:bg-gray-700
-        text-black dark:text-white
-        transition
+      border-b
+      border-gray-600
     "
->
+  />
+        </div>
 
-    {darkMode?"☀ Light Mode":"🌙 Dark Mode"}
 
-</button>  
+        <Link
+          to="/upload"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaUpload className="text-sm" />
+          <span className="text-sm text-sm truncate">Upload Data</span>
+        </Link>
+        
 
-        </nav>
 
-      </div>
+        <Link
+          to="/forecast"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaBrain className="text-sm" />
+          <span className="text-sm text-sm truncate">Forecast Data</span>
+        </Link>
+
+        </>)
+        }
+
+       {/* MANAGEMENT */}
+
+       { /*MANAGER, ANALYST AND VIEWER RESTRICTED*/
+          (role != "manager" && role !="analyst" && role!= "viewer") && (
+            <>   
+
+        <div className="mt-6 mb-2 px-4">
+          <p className="
+            text-base
+            font-bold
+            tracking-wide
+            text-gray-300
+          ">
+            MANAGE
+          </p>
+            <div
+    className="
+      border-b
+      border-gray-600
+    "
+  />
+        </div>
+
+        <Link
+          to="/admin/management"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+
+          <FaUsersCog className="text-sm" />
+          <span className="text-sm text-sm truncate">Management</span>
+        </Link>
+
+              <Link
+          to="/organization"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaBuilding className="text-sm" />
+          <span className="text-sm text-sm truncate">Organization</span>
+        </Link>  
+
+        <Link
+          to="/admin/activity-logs"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaClipboardList className="text-sm" />
+          <span className="text-sm text-sm truncate">Activity Logs</span>
+        </Link>
+       </>
+  )
+}        
+
+        {/* ENTERPRISE */}
+
+       { /*ANALYST AND VIEWER RESTRICTED*/
+          ( role !="analyst" && role!= "viewer") && (
+            <>   
+
+        <div className="mt-6 mb-2 px-4">
+          <p className="
+            text-base
+            font-bold
+            tracking-wide
+            text-gray-300
+          ">
+            ENTERPRISE
+          </p>
+            <div
+    className="
+      border-b
+      border-gray-600
+    "
+  />
+        </div>
+
+        <Link
+          to="/workflow"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaProjectDiagram className="text-sm" />
+          <span className="text-sm text-sm truncate">Workflow</span>
+        </Link>
+
+        <Link
+          to="/planning"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaEdit className="text-sm" />
+          <span className="text-sm text-sm truncate">Planning</span>
+        </Link>
+
+        <Link
+          to="/governance"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaShieldAlt className="text-sm" />
+          <span className="text-sm text-sm truncate">Governance</span>
+        </Link>
+
+      </>)
+      }      
+
+      {/*PROJECT*/}            
+
+              <div className="mt-6 mb-2 px-4">
+          <p className="
+            text-base
+            font-bold
+            tracking-wide
+            text-gray-300
+          ">
+            PROJECTS
+          </p>
+    <div
+    className="
+      border-b
+      border-gray-600
+    "
+  />
+        </div>      
+
+        <Link
+          to="/workspace"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaFolderOpen className="text-sm" />
+          <span className="text-sm text-sm truncate">Workspace</span>
+        </Link>
+
+        <Link
+          to="/collaboration"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaUserFriends className="text-sm" />
+          <span className="text-sm text-sm truncate">Collaboration</span>
+        </Link>
+
+             <div className="mt-6 mb-2 px-4">
+          <p className="
+            text-base
+            font-bold
+            tracking-wide
+            text-gray-300
+          ">
+            REPORTS
+          </p>
+    <div
+    className="
+      border-b
+      border-gray-600
+    "
+  />
+        </div>      
+
+        <Link
+          to="/download"
+          className="
+            flex items-center gap-3 px-4 py-2
+            rounded-xl
+            hover:bg-white/10
+            hover:text-green-200
+            transition
+          "
+        >
+          <FaDownload className="text-sm" />
+          <span className="text-sm text-sm truncate">Downloads</span>
+        </Link>
+
+     
+  </nav>
+
+</div>
 
 {/*Top Bar*/}
 <div className="
@@ -458,16 +547,15 @@ z-50
         {/* Left */}
 
         <div
-        className="
-        text-xl
-        font-semibold
-        "
-        >
+  className="
+    flex items-center gap-2
+    text-xl font-semibold
+  "
+>
+  <FaRobot className="text-2xl text-blue-400" />
 
-            AI Demand Forecast
-
-
-        </div>
+  <span >AI Demand Forecast</span>
+</div>
 
         {/* Right */}
 
@@ -479,8 +567,26 @@ z-50
         "
         >
 
+           {/* Theme Toggle */}
 
+  <button
+    onClick={toggleTheme}
+    className="
+      flex items-center gap-2
+      px-3 py-2
+      rounded-xl
+      hover:bg-white/10
+      transition
+    "
+  >
+    <span className="text-lg">
+      {darkMode ? "☀" : "🌙"}
+    </span>
 
+    <span className="hidden md:inline">
+      {darkMode ? "Light" : "Dark"}
+    </span>
+  </button>
               
             {/* Notification */}
 
@@ -601,7 +707,7 @@ z-50`}
 
      <div className="border-t"></div>
 
-    {(role=="super_admin" || role == "analyst") &&
+    { (role !="analyst" && role!="viewer") &&
     (<>
             <Link
         to="/dashboard/settings"
@@ -680,11 +786,12 @@ z-50`}
 </div>
 
 
-            </div>
+  </div>
 
         </div>
 
 </header>
+
 
 <main
 className={`
@@ -694,16 +801,14 @@ className={`
   overflow-y-auto
 
     ${styles.layout}
-  
-  
   `}
 >
+
 {children}
+
 </main>
-
 </div>
-
-    </div>
+</div>
   
 );
 }

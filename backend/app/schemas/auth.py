@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: str    
 
 class ForgotPasswordRequest(BaseModel):
     email: str    
@@ -18,3 +18,7 @@ class ResetPasswordRequest(BaseModel):
 
 class UserStatusUpdate(BaseModel):
     status: str    
+
+class UserRoleOrganizationUpdate(BaseModel):
+    role: str
+    organization_id: int | None = None

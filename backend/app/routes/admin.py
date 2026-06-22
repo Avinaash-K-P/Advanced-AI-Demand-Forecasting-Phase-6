@@ -5,7 +5,7 @@ from app.db.database import get_db
 from app.utils.response import success_response
 from app.utils.pagination import paginator
 from app.core.security import get_current_user, verify_role
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.user import User
 from app.models.sales import Sales
 from app.models.reports import Report
@@ -13,14 +13,15 @@ import os
 from datetime import datetime
 from app.schemas.auth import UserStatusUpdate
 from app.models.api_logs import APILog
+from app.schemas.auth import UserRoleOrganizationUpdate
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/admin", tags=["Admin"])
 
 # Dashboard 
 @router.get("/dashboard")
 def admin_dashboard(
     db: Session = Depends(get_db), 
-    admin = Depends(verify_role(["super_admin"]))
+    admin = Depends(verify_role("admins"))
 ):
     total_users = db.query(User).count()
     total_datasets = db.query(Sales).count()
@@ -43,7 +44,7 @@ def list_users(
     username:str=None,
     role:str=None,
     db: Session = Depends(get_db), 
-    admin = Depends(verify_role(["super_admin"]))
+    admin = Depends(verify_role("admins"))
 ):
     query = db.query(User)
     
@@ -72,7 +73,7 @@ def update_user_status(
 
     db: Session = Depends(get_db),
 
-    admin = Depends(verify_role(["super_admin"]))
+    admin = Depends(verify_role("admins"))
 
 ):
 
@@ -99,6 +100,62 @@ def update_user_status(
         "message":
         "Status updated successfully"
     }
+
+# Role and Organization management
+@router.put("/users/{user_id}/role")
+def update_user_role(
+
+    user_id: int,
+
+    payload: UserRoleOrganizationUpdate,
+
+    db: Session = Depends(get_db),
+
+    admin = Depends(
+        verify_role(
+            ["super_admin", "organization_admin"]
+        )
+    )
+
+):
+    user = db.query(User).filter(
+        User.id == user_id
+    ).first()
+
+    if not user:
+
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if (admin.role == "organization_admin"
+        and
+        user.organization_id != admin.organization_id):
+
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot manage users from another organization"
+        )
+
+    user.role = payload.role
+
+    user.organization_id = payload.organization_id
+
+    db.commit()
+
+    db.refresh(user)
+
+    return success_response(
+        message="User role updated successfully",
+        data={
+            "user_id": user.id,
+            "role": user.role,
+            "organization_id": user.organization_id
+        }
+    )
+
+
 
 # Activity Logs
 @router.get("/activity-logs")
@@ -169,7 +226,7 @@ def list_sales(
     end_date: str = None,
     region:str = None,
     db: Session = Depends(get_db), 
-    admin = Depends(verify_role(["super_admin"]))
+    admin = Depends(verify_role("admins"))
 ):
     query = db.query(Sales) 
 
@@ -198,7 +255,7 @@ def list_sales(
 @router.get("/reports")
 def view_reports(
     db: Session = Depends(get_db), 
-    admin = Depends(verify_role(["super_admin"]))
+    admin = Depends(verify_role("admins"))
 ):
     reports_folder = "reports"
     
@@ -239,7 +296,7 @@ def list_forecasts(
     start_date: str = None,
     end_date: str = None,
     db: Session = Depends(get_db), 
-    admin = Depends(verify_role(["super_admin"]))
+    admin = Depends(verify_role("admins"))
 ):
     query = db.query(ForecastResult)
     

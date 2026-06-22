@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
-from app.models.forecast import ForecastResult
+from app.models.forecast_results import ForecastResult
 from app.models.reports import Report
 from app.models.forecast_accuracy import ForecastAccuracy
 from app.core.security import verify_role, get_current_user
@@ -28,7 +28,7 @@ REPORTS_DIR = "reports/forecast_reports"
 @router.get("/")
 def list_reports(
     db: Session = Depends(get_db),
-    user=Depends(verify_role(["super_admin", "analyst", "viewer"]))
+    user=Depends(verify_role("all"))
 ):
     reports = db.query(Report).order_by(Report.created_at.desc()).all()
     return success_response(
@@ -47,7 +47,7 @@ def list_reports(
 @router.get("/export-excel")
 def export_excel(
     db: Session = Depends(get_db),
-    user=Depends(verify_role(["super_admin", "analyst", "viewer"])),
+    user=Depends(verify_role("all")),
     current_user: User = Depends(get_current_user)
 ):
     forecasts = db.query(ForecastResult).order_by(
@@ -81,6 +81,7 @@ def export_excel(
             ws.column_dimensions[col[0].column_letter].width = 22
 
     report = Report(
+        organization_id = current_user.organization_id,
         filename=filename,
         file_path=file_path,
         file_type="excel",
@@ -91,6 +92,7 @@ def export_excel(
 
     log_api_activity(
         db=db,
+        user_id= current_user.id,
         username=user["username"],
         endpoint="/export-excel",
         method="GET",
@@ -108,7 +110,7 @@ def export_excel(
 @router.get("/export-pdf")
 def export_pdf(
     db: Session = Depends(get_db),
-    user=Depends(verify_role(["super_admin", "analyst", "viewer"])),
+    user=Depends(verify_role("all")),
     current_user: User = Depends(get_current_user)
 ):
     forecasts = db.query(ForecastResult).order_by(
@@ -162,6 +164,7 @@ def export_pdf(
     doc.build(elements)
 
     report = Report(
+        organization_id = current_user.organization_id,
         filename=filename,
         file_path=file_path,
         file_type="pdf",
@@ -172,6 +175,7 @@ def export_pdf(
 
     log_api_activity(
         db=db,
+        user_id= current_user.id,
         username=user["username"],
         endpoint="/export-pdf",
         method="GET",

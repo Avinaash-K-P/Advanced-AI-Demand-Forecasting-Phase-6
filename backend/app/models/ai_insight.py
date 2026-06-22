@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 
 from app.db.session import Base
 
@@ -11,28 +11,16 @@ class AIInsight(Base):
 
     __tablename__ = "ai_insights"
 
-    id = Column(
-        Integer,
-        primary_key=True
-    )
+    id = Column(Integer,primary_key=True)
 
-    insight_type = Column(
-        String(100)
-    )
+    organization_id = Column(Integer, ForeignKey("organization.id"))    
 
-    title = Column(
-        String(255)
-    )
+    insight_type = Column(String(100))
 
-    description = Column(
-        Text
-    )
+    title = Column( String(255))
 
-    severity = Column(
-        String(50)
-    )
+    description = Column(Text)
 
-    created_at = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
+    severity = Column(String(50))
+
+    created_at = Column(DateTime,default=datetime.utcnow)
